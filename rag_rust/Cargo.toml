@@ -1,0 +1,23 @@
+[package]
+name = "rag_rust"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "rag_rust"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.21", features = ["extension-module"] }
+pdf_oxide = "0.3.10" # Ou la version la plus récente
+anyhow = "1.0"
+rayon = "1.10"
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+lancedb = "0.14"
+arrow-array = "53"
+futures = "0.3"
+arrow-schema = "53"
+text-splitter = "0.29.3"
+once_cell = "1.21"
+fastembed = "5.13.0"
