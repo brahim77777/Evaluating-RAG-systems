@@ -1,4 +1,5 @@
     # evaluate_batch.py
+import re
 from datasets import load_dataset
 import time
 
@@ -13,15 +14,21 @@ def judge_answer(question, ground_truth, rag_answer):
     RAG System Answer: {rag_answer}
     
     Did the RAG system correctly identify the core facts from the Ground Truth? 
-    Score the RAG answer from 0 to 10 based on accuracy. Return ONLY an integer number.
+    Score the RAG answer from 0 to 10 based on accuracy. 
+    Return ONLY an integer number. DO NOT write fractions like /10.
     """
     messages = [{"role": "user", "content": prompt}]
     response, _ = chat_complete(messages)
-    try:
-        score = int(''.join(filter(str.isdigit, response)))
-        return score / 10.0 
-    except:
+    
+    # --- NEW ROBUST EXTRACTION ---
+    numbers = re.findall(r'\d+', response)
+    if not numbers:
         return 0.0
+    # Keep only numbers between 0 and 10
+    valid_scores = [int(n) for n in numbers if 0 <= int(n) <= 10]
+    if valid_scores:
+        return valid_scores[-1] / 10.0 # Take the last valid number in case it says "I give it a 8"
+    return 0.0
 
 def judge_retrieval(question, ground_truth, retrieved_chunks):
     safe_chunks = [str(chunk) for chunk in retrieved_chunks]
@@ -35,15 +42,19 @@ def judge_retrieval(question, ground_truth, retrieved_chunks):
     {combined_chunks}
     
     Does the Retrieved Context contain the necessary facts to deduce the Ground Truth Answer? 
-    Score from 0 to 10. Return ONLY an integer number.
+    Score from 0 to 10. Return ONLY an integer number. DO NOT write fractions like /10.
     """
     messages = [{"role": "user", "content": prompt}]
     response, _ = chat_complete(messages)
-    try:
-        score = int(''.join(filter(str.isdigit, response)))
-        return score / 10.0 
-    except:
+    
+    # --- NEW ROBUST EXTRACTION ---
+    numbers = re.findall(r'\d+', response)
+    if not numbers:
         return 0.0
+    valid_scores = [int(n) for n in numbers if 0 <= int(n) <= 10]
+    if valid_scores:
+        return valid_scores[-1] / 10.0
+    return 0.0
 
 print("Loading QASper dataset...")
 dataset = load_dataset("allenai/qasper", split="validation", trust_remote_code=True)

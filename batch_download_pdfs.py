@@ -19,7 +19,7 @@ def convert_to_pdf(text, pdf_filename):
 print("Loading QASper dataset...")
 dataset = load_dataset("allenai/qasper", split="validation", trust_remote_code=True)
 
-NUM_PAPERS = 5 # We will start with 5 to keep evaluation time reasonable
+NUM_PAPERS = 50 # We will start with 5 to keep evaluation time reasonable
 
 print(f"Generating {NUM_PAPERS} PDFs...")
 for i in range(NUM_PAPERS):
